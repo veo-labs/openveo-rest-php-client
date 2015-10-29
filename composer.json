@@ -1,0 +1,29 @@
+{
+  "name": "openveo/rest-php-client",
+  "description": "REST client for OpenVeo Web Service",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "openveo",
+    "php",
+    "rest",
+    "restfull",
+    "client",
+    "web service"
+  ],
+  "authors": [
+    {
+      "name": "Veo-Labs",
+      "email": "info@veo-labs.com"
+    }
+  ],
+  "homepage": "https://github.com/veo-labs/openveo-rest-php-client",
+  "require": {
+    "php": ">=5.3.0",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Openveo\\": "src/"
+    }
+  }
+}
