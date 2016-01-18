@@ -171,8 +171,6 @@ class Client extends RESTClient {
     if (!$this->isAuthenticated())
       $this->authenticate();
 
-    sleep(10);
-
     // Execute web service call
     $results = call_user_func_array(array($this, 'parent::' . $method), $arguments);
     $decodedResults = $results;
