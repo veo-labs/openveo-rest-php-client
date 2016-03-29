@@ -179,7 +179,9 @@ class Client extends RESTClient {
     // Try to get a new access token
     if (isset($decodedResults->error) &&
        isset($decodedResults->error_description) &&
-       ($decodedResults->error_description === 'Token not found or expired')) {
+       ($decodedResults->error_description === 'Token not found or expired' ||
+       $decodedResults->error_description === 'Token already expired')) {
+      $this->accessToken = null;
 
       // Get a new access token
       $this->authenticate();
