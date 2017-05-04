@@ -2,7 +2,7 @@
 
 ## BUG FIXES
 
-- Handle expired token. Authentication wasn't automatically retried when client token expired. It now tries to authenticate again before returning an error.
+- Handle expired token. Authentication wasn't automatically retried when client token expired. It now tries to authenticate again before returning an error
 
 # 1.0.1 / 2016-01-19
 
