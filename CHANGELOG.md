@@ -1,3 +1,9 @@
+# 1.0.2 / 2017-05-04
+
+## BUG FIXES
+
+- Handle expired token. Authentication wasn't automatically retried when client token expired. It now tries to authenticate again before returning an error.
+
 # 1.0.1 / 2016-01-19
 
 Remove unwanted sleep instruction on all requests.
