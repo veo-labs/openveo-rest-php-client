@@ -9,6 +9,7 @@
 ## NEW FEATURES
 
 - Add support for HTTPS
+- Add more precise error message when request to the Web Service failed
 
 # 1.0.2 / 2017-05-04
 

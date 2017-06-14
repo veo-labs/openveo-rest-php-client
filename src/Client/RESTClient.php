@@ -84,10 +84,11 @@ abstract class RestClient {
       $responseObject = json_decode($responseObject);
 
       $requestInfo = curl_getinfo($this->handle);
+      $error = curl_error($this->handle);
       curl_close($this->handle);
 
       if (empty($requestInfo['http_code']))
-        throw new RestClientException('Can`t reach the server');
+        throw new RestClientException('Can`t reach the server (' . $error . ')');
     }
 
     return $responseObject;
