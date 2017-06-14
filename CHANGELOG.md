@@ -1,3 +1,15 @@
+# 2.0.0 /
+
+## BREAKING CHANGES
+
+- Prototype of the Client class constructor has changed. It now accepts the url of the web service, the client id, the client secret and an optional certificate for HTTPS support
+- get / post / put / delete methods now excepts the end point instead of the full url
+- Decrease curl timeout when requesting OpenVeo Web Service from 30 seconds to 10 seconds
+
+## NEW FEATURES
+
+- Add support for HTTPS
+
 # 1.0.2 / 2017-05-04
 
 ## BUG FIXES

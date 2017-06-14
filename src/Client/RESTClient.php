@@ -29,8 +29,10 @@ abstract class RestClient {
 
   /**
    * Builds a new REST client.
+   *
+   * @param String $certificate Path to the Web Service server trusted certificate file
    */
-  protected function __construct() {
+  protected function __construct($certificate = null) {
     $curlCookieJar = tempnam(sys_get_temp_dir(), 'cookies_');
 
     $this->curlOptions = array(
@@ -41,7 +43,8 @@ abstract class RestClient {
       CURLOPT_COOKIEFILE => $curlCookieJar,
       CURLOPT_HEADER => false,
       CURLOPT_CONNECTTIMEOUT => 1,
-      CURLOPT_TIMEOUT => 30
+      CURLOPT_TIMEOUT => 10,
+      CURLOPT_CAINFO => $certificate
     );
 
     $this->httpHeaders = array(

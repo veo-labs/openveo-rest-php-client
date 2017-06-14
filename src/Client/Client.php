@@ -31,23 +31,19 @@ class Client extends RESTClient {
   /**
    * Builds a new client Web Service.
    *
+   * @param String $webServiceUrl The complete url of the OpenVeo Web Service
    * @param String $id The client id
    * @param String $secret The client secret
-   * @param String $host The OpenVeo Web Service host without the protocol part (e.g 127.0.0.1)
-   * @param String|Integer $port The Web Service port if any
+   * @param String $certificate Path to the Web Service server trusted certificate file
    */
-  public function __construct($id, $secret, $host, $port = null) {
-    if (empty($host) || empty($id) || empty($secret))
-      throw new ClientException('Host, client id and client secret are required to create an Openveo Client');
+  public function __construct($webServiceUrl, $id, $secret, $certificate) {
+    if (empty($webServiceUrl) || empty($id) || empty($secret))
+      throw new ClientException('Url, client id and client secret are required to create an Openveo Client');
 
     $this->credentials = base64_encode($id . ':' . $secret);
-    $this->baseUrl = 'http://' . trim($host, '/');
+    $this->baseUrl = rtrim($webServiceUrl, '/');
 
-    // Add port if defined
-    if (!empty($port))
-      $this->baseUrl .= ':' . $port;
-
-    parent::__construct();
+    parent::__construct($certificate);
   }
 
   /**
@@ -97,12 +93,12 @@ class Client extends RESTClient {
    * If client is not authenticated or access token has expired, a new authentication is automatically
    * performed.
    *
-   * @param String $url The url to make the call to
+   * @param String $endPoint The web service end point to reach with query parameters
    * @param Array $httpHeaders Extra headers to pass to curl request
    * @param Array $curlOptions Extra curl options to pass to curl request
    * @return StdClass The response from curl if any
    */
-  public function get($url, $httpHeaders = array(), $curlOptions = array()) {
+  public function get($endPoint, $httpHeaders = array(), $curlOptions = array()) {
     $method = 'get';
     return $this->executeRequest($method, func_get_args());
   }
@@ -113,13 +109,13 @@ class Client extends RESTClient {
    * If client is not authenticated or access token has expired, a new authentication is automatically
    * performed.
    *
-   * @param String $url The url to make the call to
+   * @param String $endPoint The web service end point to reach with query parameters
    * @param String|Array $fields The data to post. Pass an array to make an http form post.
    * @param Array $httpHeaders Extra headers to pass to curl request
    * @param Array $curlOptions Extra curl option to pass to curl request
    * @return StdClass The response from curl if any
    */
-  public function post($url, $fields = array(), $httpHeaders = array(), $curlOptions = array()) {
+  public function post($endPoint, $fields = array(), $httpHeaders = array(), $curlOptions = array()) {
     $method = 'post';
     return $this->executeRequest($method, func_get_args());
   }
@@ -130,13 +126,13 @@ class Client extends RESTClient {
    * If client is not authenticated or access token has expired, a new authentication is automatically
    * performed.
    *
-   * @param String $url The url to make the call to
+   * @param String $endPoint The web service end point to reach with query parameters
    * @param String|Array $data The data to post
    * @param Array $httpHeaders Extra headers to pass to curl request
    * @param Array $curlOptions Extra curl options to pass to curl request
    * @return StdClass The response from curl if any
    */
-  public function put($url, $data = '', $httpHeaders = array(), $curlOptions = array()) {
+  public function put($endPoint, $data = '', $httpHeaders = array(), $curlOptions = array()) {
     $method = 'put';
     return $this->executeRequest($method, func_get_args());
   }
@@ -144,12 +140,12 @@ class Client extends RESTClient {
   /**
    * Executes a DELETE request.
    *
-   * @param String $url The url to make the call to
+   * @param String $endPoint The web service end point to reach with query parameters
    * @param Array $httpHeaders Extra headers to pass to curl request
    * @param Array $curlOptions Extra curl options to pass to curl handle
    * @return StdClass The response from curl if any
    */
-  public function delete($url, $httpHeaders = array(), $curlOptions = array()) {
+  public function delete($endPoint, $httpHeaders = array(), $curlOptions = array()) {
     $method = 'delete';
     return $this->executeRequest($method, func_get_args());
   }
@@ -170,6 +166,9 @@ class Client extends RESTClient {
     // Authenticate
     if (!$this->isAuthenticated())
       $this->authenticate();
+
+    // Prefix end point by the base url
+    $arguments[0] = $this->baseUrl . '/' . ltrim($arguments[0], '/');
 
     // Execute web service call
     $results = call_user_func_array(array($this, 'parent::' . $method), $arguments);
