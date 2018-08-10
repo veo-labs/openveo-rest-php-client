@@ -1,3 +1,9 @@
+# 2.0.1 / YYYY-MM-DD
+
+## BUG FIXES
+
+- Fix cURL error message when using client without a certificate
+
 # 2.0.0 / 2017-06-14
 
 ## BREAKING CHANGES

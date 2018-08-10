@@ -43,9 +43,10 @@ abstract class RestClient {
       CURLOPT_COOKIEFILE => $curlCookieJar,
       CURLOPT_HEADER => false,
       CURLOPT_CONNECTTIMEOUT => 1,
-      CURLOPT_TIMEOUT => 10,
-      CURLOPT_CAINFO => $certificate
+      CURLOPT_TIMEOUT => 10
     );
+
+    if (!empty($certificate)) $this->curlOptions[CURLOPT_CAINFO] = $certificate;
 
     $this->httpHeaders = array(
       'Accept: application/json'
