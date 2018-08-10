@@ -1,4 +1,8 @@
-# 2.0.1 / YYYY-MM-DD
+# 2.1.0 / YYYY-MM-DD
+
+## NEW FEATURES
+
+- Make \OpenVeo\Client\Client.authenticate and \OpenVeo\Client\Client.isAuthenticated public
 
 ## BUG FIXES
 

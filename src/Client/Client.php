@@ -51,7 +51,7 @@ class Client extends RESTClient {
    *
    * @throws ClientException
    */
-  protected function authenticate() {
+  public function authenticate() {
     $url = $this->baseUrl . '/token';
     $results = parent::post($url, json_encode(array(
         'grant_type' => 'client_credentials'
@@ -83,7 +83,7 @@ class Client extends RESTClient {
    *
    * @return bool true if client is authenticated, false otherwise
    */
-  protected function isAuthenticated() {
+  public function isAuthenticated() {
     return !empty($this->accessToken);
   }
 
