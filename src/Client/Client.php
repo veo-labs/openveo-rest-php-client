@@ -47,6 +47,14 @@ class Client extends RESTClient {
   }
 
   /**
+   * Removes access token and call parent destructor.
+   */
+  function __destruct() {
+    $this->accessToken = null;
+    parent::__destruct();
+  }
+
+  /**
    * Authenticates the client to the Web Service.
    *
    * @throws ClientException
@@ -161,7 +169,6 @@ class Client extends RESTClient {
    * @throws ClientException
    */
   protected function executeRequest($method, $arguments){
-
     // Client is authenticated
     // Authenticate
     if (!$this->isAuthenticated())

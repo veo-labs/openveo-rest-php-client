@@ -54,6 +54,14 @@ abstract class RestClient {
   }
 
   /**
+   * Removes CURL cookie file when destructing the client.
+   */
+  function __destruct() {
+    unset($this->handle);
+    @unlink($this->curlOptions[CURLOPT_COOKIEJAR]);
+  }
+
+  /**
    * Executes the curl request.
    *
    * @param String $url The url to call

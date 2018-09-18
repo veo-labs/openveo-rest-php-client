@@ -7,6 +7,7 @@
 ## BUG FIXES
 
 - Fix cURL error message when using client without a certificate
+- Fix remaining cookie file which wasn't removed after destructing the client
 
 # 2.0.0 / 2017-06-14
 
