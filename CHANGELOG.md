@@ -1,4 +1,8 @@
-# 2.1.0 / YYYY-MM-DD
+# 3.0.0 / YYYY-MM-DD
+
+## BREAKING CHANGES
+
+- \OpenVeo\Exception\ClientException now extends \OpenVeo\Exception\RESTClientException
 
 ## NEW FEATURES
 

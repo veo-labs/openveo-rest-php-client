@@ -2,6 +2,6 @@
 
 namespace Openveo\Exception;
 
-class ClientException extends \Exception{}
+class ClientException extends RESTClientException{}
 
 ?>
