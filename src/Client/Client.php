@@ -61,18 +61,23 @@ class Client extends RESTClient {
    */
   public function authenticate() {
     $url = $this->baseUrl . '/token';
-    $results = parent::post($url, json_encode(array(
+    list($decodedResults, $requestInfo) = parent::post($url, json_encode(array(
         'grant_type' => 'client_credentials'
         )), array(
         'Authorization: Basic ' . $this->credentials,
         'Content-Type: application/json'
     ));
 
-    $decodedResults = $results;
+    if ($requestInfo['http_code'] >= 400) {
 
-    // Authentication failed
-    if(isset($decodedResults->error) && isset($decodedResults->error_description))
-      throw new ClientException($decodedResults->error_description);
+      // Request failed
+
+      if (isset($decodedResults->error) && isset($decodedResults->error_description))
+        throw new ClientException($decodedResults->error_description);
+      else
+        throw new ClientException($this->getErrorMessage($decodedResults, $requestInfo, 'token', 'POST'));
+
+    }
 
     if (!isset($decodedResults->access_token)) {
       throw new ClientException('Authentication failed');
@@ -159,6 +164,32 @@ class Client extends RESTClient {
   }
 
   /**
+   * Interprets response results to get a human readable error message.
+   *
+   * @param StdClass $results Web service response with an eventually error property
+   * @param Array $requestInfo Information about the request with an "http_code" property
+   * @param String $endPoint The requested end point without the base URL
+   * @param String $method The HTTP method used to request the end point
+   * @return String The error message
+   */
+  protected function getErrorMessage($results, $requestInfo, $endPoint, $method) {
+    $method = strtoupper($method);
+
+    if ($requestInfo['http_code'] === 403)
+      return "You don't have the authorization to access the endpoint \"$method $endPoint\"";
+    else if ($requestInfo['http_code'] === 401)
+      return 'Authentication failed, verify your credentials';
+    else if ($requestInfo['http_code'] === 404)
+      return "Resource $endPoint not found";
+    else if (isset($results->error)) {
+        $error = $results->error;
+        $message = !empty($error->message) ? $error->message : '';
+        return "Error: $message (code={$error->code}, module={$error->module})";
+    } else
+      return "Unkown error (http_code={$requestInfo['http_code']})";
+  }
+
+  /**
    * Executes a REST request after making sure the client is authenticated.
    *
    * If client is not authenticated or access token has expired, a new authentication is automatically
@@ -166,39 +197,47 @@ class Client extends RESTClient {
    *
    * @param String $method The HTTP method to use (either get, post, delete or put)
    * @param Array The list of arguments to pass to get / post / delete / put method
-   * @throws ClientException
+   * @throws ClientException Exception thrown if request failed (HTTP code greater than or equal to 400)
    */
-  protected function executeRequest($method, $arguments){
-    // Client is authenticated
+  protected function executeRequest($method, $arguments) {
+
+    // Client is not authenticated
     // Authenticate
     if (!$this->isAuthenticated())
       $this->authenticate();
 
     // Prefix end point by the base url
-    $arguments[0] = $this->baseUrl . '/' . ltrim($arguments[0], '/');
+    $endpoint = ltrim($arguments[0], '/');
+    $arguments[0] = "{$this->baseUrl}/$endpoint";
 
     // Execute web service call
-    $results = call_user_func_array(array($this, 'parent::' . $method), $arguments);
-    $decodedResults = $results;
+    list($decodedResults, $requestInfo) = call_user_func_array(array($this, "parent::$method"), $arguments);
 
-    // Token not found or expired
-    // Try to get a new access token
-    if (isset($decodedResults->error) &&
-       isset($decodedResults->error_description) &&
-       ($decodedResults->error_description === 'Token not found or expired' ||
-       $decodedResults->error_description === 'Token already expired')) {
-      $this->accessToken = null;
+    // Request done (meaning that transfer worked)
 
-      // Get a new access token
-      $this->authenticate();
+    if ($requestInfo['http_code'] >= 400) {
+      if (isset($decodedResults->error) &&
+         isset($decodedResults->error_description) &&
+         ($decodedResults->error_description === 'Token not found or expired' ||
+         $decodedResults->error_description === 'Token already expired')) {
 
-      // Execute web service call
-      $results = call_user_func_array(array($this, 'parent::' . $method), $arguments);
-      $decodedResults = $results;
+        // Token not found or expired
+        // Try to get a new access token
 
-      // Still in error, throw an exception
-      if (isset($decodedResults->error) && isset($decodedResults->error_description))
-        throw new ClientException($decodedResults->error_description);
+        $this->accessToken = null;
+
+        // Get a new access token
+        $this->authenticate();
+
+        // Now that we have a new token, try the request again
+        list($decodedResults, $requestInfo) = call_user_func_array(array($this, "parent::$method"), $arguments);
+
+        // Still in error, throw an exception
+        if (isset($decodedResults->error) && isset($decodedResults->error_description))
+          throw new ClientException($decodedResults->error_description);
+      }
+
+      throw new ClientException($this->getErrorMessage($decodedResults, $requestInfo, $endpoint, $method));
     }
 
     return $decodedResults;

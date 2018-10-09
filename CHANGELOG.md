@@ -3,6 +3,7 @@
 ## BREAKING CHANGES
 
 - \OpenVeo\Exception\ClientException now extends \OpenVeo\Exception\RESTClientException
+- A \OpenVeo\Exception\ClientException is now thrown for all HTTP responses with an HTTP code greater than or equal to 400
 
 ## NEW FEATURES
 
